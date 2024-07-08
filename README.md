@@ -16,7 +16,6 @@ The second approach uses a Lambda function to carry out the data processing. It 
 
 The project is organized as follows:
 
-- **.vscode/**: Contains Visual Studio Code configuration files.
 - **bin/**: CDK application entry point.
 - **cdk.out/**: Generated output from the CDK deployment.
 - **lib/**: Contains the CDK stack definition.
@@ -24,29 +23,10 @@ The project is organized as follows:
 - **src/**: Source code for the Lambda function and other application logic.
 - **test/**: Contains test files.
   - **use-cases.test.ts**: Test cases for different use cases.
-- **.gitignore**: Specifies files to be ignored by Git.
-- **.npmignore**: Specifies files to be ignored by npm.
 - **cdk.json**: CDK project configuration.
 - **jest.config.js**: Jest configuration for running tests.
-- **package-lock.json**: Automatically generated file that describes the exact tree of dependencies.
 - **package.json**: Contains project metadata and dependencies.
-- **README.md**: Project overview and documentation (this file).
 - **tsconfig.json**: TypeScript configuration file.
-
-## Getting Started
-
-### Prerequisites
-
-- AWS account with necessary permissions.
-- AWS CDK installed.
-- Node.js and npm installed.
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-repo/mqtt-data-capture.git
-   cd mqtt
 
 
 ## CDK
@@ -61,4 +41,3 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 * `npx cdk deploy`  deploy this stack to your default AWS account/region
 * `npx cdk diff`    compare deployed stack with current state
 * `npx cdk synth`   emits the synthesized CloudFormation template
-# data-procesing-serveless-clean
