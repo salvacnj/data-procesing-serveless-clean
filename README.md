@@ -12,6 +12,30 @@ The first approach captures and stores data in DynamoDB solely with declarative 
 
 The second approach uses a Lambda function to carry out the data processing. It is implemented in TypeScript, applying the Clean Architecture design approach. This method allows for greater complexity in implementation while ensuring the code remains flexible, maintainable, and scalable. For a brief explanation of Clean Architecture, refer to [this article by Uncle Bob](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html).
 
+## What is AWS CDK?
+
+The AWS Cloud Development Kit (CDK) is an open-source software development framework to define cloud infrastructure in code and provision it through AWS CloudFormation. It allows you to use programming languages like TypeScript, JavaScript, Python, Java, and C# to model and provision your application resources.
+
+### Benefits of Using CDK
+
+- **Code as Infrastructure**: Define your cloud resources using familiar programming languages.
+- **High-Level Constructs**: Utilize pre-built constructs for common tasks, reducing boilerplate code.
+- **Reusable Components**: Create and share reusable components across projects.
+- **Automation**: Automate provisioning and deployment processes.
+- **Safety**: Leverage the safety and consistency of AWS CloudFormation.
+
+## What is Clean Architecture?
+
+Clean Architecture is a software design philosophy that emphasizes separation of concerns, making the codebase more modular, testable, and maintainable. It structures the system into layers with distinct responsibilities, ensuring that business logic is independent of frameworks and external systems.
+
+### Benefits of Clean Architecture
+
+- **Separation of Concerns**: Divides the system into layers with specific roles, enhancing clarity.
+- **Testability**: Makes it easier to test the core business logic without dependencies on external systems.
+- **Flexibility**: Allows swapping out technologies with minimal impact on the business logic.
+- **Maintainability**: Improves the ease of maintaining and updating the system.
+
+
 ## Project Structure
 
 The project is organized as follows:
@@ -19,7 +43,6 @@ The project is organized as follows:
 - **bin/**: CDK application entry point.
 - **cdk.out/**: Generated output from the CDK deployment.
 - **lib/**: Contains the CDK stack definition.
-- **node_modules/**: Node.js dependencies.
 - **src/**: Source code for the Lambda function and other application logic.
 - **test/**: Contains test files.
   - **use-cases.test.ts**: Test cases for different use cases.
