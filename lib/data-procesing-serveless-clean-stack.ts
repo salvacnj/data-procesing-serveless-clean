@@ -7,6 +7,8 @@ import path = require("path");
 import * as iot from "aws-cdk-lib/aws-iot";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as logs from "aws-cdk-lib/aws-logs";
+import * as apigateway from "aws-cdk-lib/aws-apigateway";
+
 
 export class DataProcesingServelessCleanStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -43,7 +45,7 @@ export class DataProcesingServelessCleanStack extends cdk.Stack {
         runtime: lambda.Runtime.NODEJS_18_X,
         entry: path.join(
           __dirname,
-          "../src/frameworks/aws/lambda/data.handler.ts"
+          "../src/frameworks/aws/lambda/environment-data.handler.ts"
         ),
         environment: {
           TABLE_NAME: deviceDataTable.tableName,
@@ -58,7 +60,7 @@ export class DataProcesingServelessCleanStack extends cdk.Stack {
     });
 
 
-    new iot.CfnTopicRule(this, "MqttToLambdaRule", {
+    new iot.CfnTopicRule(this, "EnvironmentSensorMqttMessage", {
       topicRulePayload: {
         actions: [
           {
@@ -76,7 +78,7 @@ export class DataProcesingServelessCleanStack extends cdk.Stack {
             },
           },
         ],
-        sql: "SELECT newuuid() as id,topic(2) as deviceCode, topic(3) as variableCode, timestamp() as receivedAt, ts as timestamp , v as value  FROM 'data/+/+'",
+        sql: `SELECT newuuid() as id,topic(3) as deviceCode, "environment" as sensorType, temperature,humidity,pressure,co2, ppfd, timestamp() as receivedAt, ts as timestamp , v as value  FROM 'data/environment/+'`,
         ruleDisabled: false,
         errorAction: {
           cloudwatchLogs: {
@@ -90,5 +92,85 @@ export class DataProcesingServelessCleanStack extends cdk.Stack {
     lambdaFunction.addPermission("IoTInvoke", {
       principal: new cdk.aws_iam.ServicePrincipal("iot.amazonaws.com"),
     });
+
+
+    let defaultCorsPreflightOptions = {
+      allowOrigins: apigateway.Cors.ALL_ORIGINS,
+      allowMethods: apigateway.Cors.ALL_METHODS,
+      allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
+    };
+
+    const api = new apigateway.RestApi(this, `IoTApi`, {
+      defaultCorsPreflightOptions,
+      restApiName: `IoT Service`,
+    });
+
+   
+
+    const allResources = api.root.addResource('data', {
+      defaultCorsPreflightOptions });
+
+
+    const scanPolicy = new iam.Policy(this, 'scanPolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          actions: ['dynamodb:Scan'],
+          effect: iam.Effect.ALLOW,
+          resources: [deviceDataTable.tableArn],
+        }),
+      ],
+    });
+
+    const scanRole = new iam.Role(this, 'scanRole', {
+      assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
+    });
+    scanRole.attachInlinePolicy(scanPolicy);
+
+    const errorResponses = [
+      {
+        selectionPattern: '400',
+        statusCode: '400',
+        responseTemplates: {
+          'application/json': `{
+            "error": "Bad input!"
+          }`,
+        },
+      },
+      {
+        selectionPattern: '5\\d{2}',
+        statusCode: '500',
+        responseTemplates: {
+          'application/json': `{
+            "error": "Internal Service Error!"
+          }`,
+        },
+      },
+    ];
+
+    const integrationResponses = [
+      {
+        statusCode: '200',
+      },
+      ...errorResponses,
+    ];
+
+    const methodOptions = { methodResponses: [{ statusCode: '200' }, { statusCode: '400' }, { statusCode: '500' }] };
+
+
+    const getAllIntegration = new apigateway.AwsIntegration({
+      action: 'Scan',
+      options: {
+        credentialsRole: scanRole,
+        integrationResponses,
+        requestTemplates: {
+          'application/json': `{
+              "TableName": "${deviceDataTable.tableName}"
+            }`,
+        },
+      },
+      service: 'dynamodb',
+    });
+
+    allResources.addMethod('GET', getAllIntegration, methodOptions);
   }
 }

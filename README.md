@@ -42,7 +42,9 @@ The project is organized as follows:
 
 - **bin/**: CDK application entry point.
 - **cdk.out/**: Generated output from the CDK deployment.
+- **front-demo/**: Frontend demo project to demonstrate the device data fetching.
 - **lib/**: Contains the CDK stack definition.
+- **simulator/**: Bash script to inject mock device data into the MQTT broker.
 - **src/**: Source code for the Lambda function and other application logic.
 - **test/**: Contains test files.
   - **use-cases.test.ts**: Test cases for different use cases.

@@ -1,5 +1,5 @@
-import { DataEntity } from "../../entity/data.entity";
+import { InputData } from "../../usecase/interface/input-data.interface";
 
 export interface DataRepository {
-  save (data: DataEntity): Promise<void>;
+  save (data: InputData): Promise<void>;
 }
